@@ -1,0 +1,73 @@
+version: '3'
+services:
+  elasticsearch1:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.3.0
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - ./volumes/data1:/var/lib/elasticsearch
+      - ./volumes/logs1:/var/log/elasticsearch
+    env_file:
+      - ./config/es.env
+    environment:
+      node.name: elk-1
+      discovery.zen.ping.unicast.hosts: docker.for.mac.localhost:9302, docker.for.mac.localhost:9303
+    ports:
+      - 9201:9200
+      - 9301:9300
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "elasticsearch,elk"
+
+  elasticsearch2:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.3.0
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - ./volumes/data2:/var/lib/elasticsearch
+      - ./volumes/logs2:/var/log/elasticsearch
+    env_file:
+      - ./config/es.env
+    environment:
+      node.name: elk-2
+      discovery.zen.ping.unicast.hosts: docker.for.mac.localhost:9301, docker.for.mac.localhost:9303
+    ports:
+      - 9202:9200
+      - 9302:9300
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "elasticsearch,elk"
+
+  elasticsearch3:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.3.0
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - ./volumes/data3:/var/lib/elasticsearch
+      - ./volumes/logs3:/var/log/elasticsearch
+    env_file:
+      - ./config/es.env
+    environment:
+      node.name: elk-3
+      discovery.zen.ping.unicast.hosts: docker.for.mac.localhost:9301, docker.for.mac.localhost:9302
+    ports:
+      - 9203:9200
+      - 9303:9300
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "elasticsearch,elk"
