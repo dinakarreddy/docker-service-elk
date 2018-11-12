@@ -5,3 +5,7 @@
 - pipeline.id: tcp-json-pipeline
   path.config: "/usr/share/logstash/pipeline/tcp-json-pipeline.conf"
   pipeline.workers: 1
+
+- pipeline.id: tcp-filebeat-pipeline
+  path.config: "/usr/share/logstash/pipeline/tcp-filebeat-pipeline.conf"
+  pipeline.workers: 1

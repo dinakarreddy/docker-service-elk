@@ -70,6 +70,7 @@ services:
     ports:
       - 80:80
       - 5959:5959
+      - 5961:5961
     logging:
       driver: json-file
       options:
