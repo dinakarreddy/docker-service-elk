@@ -1,11 +1,14 @@
 version: '3'
 services:
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.3.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.5.0
     ulimits:
       memlock:
         soft: -1
         hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
     volumes:
       - ./volumes/es/data1:/var/lib/elasticsearch
       - ./volumes/es/logs1:/var/log/elasticsearch
@@ -16,20 +19,49 @@ services:
     environment:
       node.name: elk-elasticsearch-1
       ES_JAVA_OPTS: -Xms512m -Xmx512m
+      discovery.zen.ping.unicast.hosts: elasticsearch2:9300
     logging:
       driver: json-file
       options:
         max-size: "10m"
         max-file: "3"
-        labels: "elasticsearch,elk"
     healthcheck:
       test: ["CMD", "curl", "-f",  "http://elasticsearch:9200"]
       interval: 10s
       timeout: 10s
       retries: 5
 
+  elasticsearch2:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.5.0
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - ./volumes/es/data2:/var/lib/elasticsearch
+      - ./volumes/es/logs2:/var/log/elasticsearch
+    env_file:
+      - ./config/es/es.env
+    environment:
+      node.name: elk-elasticsearch-2
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+      discovery.zen.ping.unicast.hosts: elasticsearch:9300
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "curl", "-f",  "http://elasticsearch2:9200"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
   kibana:
-    image: docker.elastic.co/kibana/kibana:6.3.0
+    image: docker.elastic.co/kibana/kibana:6.5.0
     env_file:
       - ./config/kibana/kibana.env
     logging:
@@ -37,24 +69,24 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-        labels: "kibana,elk"
 
   logstash:
-    image: docker.elastic.co/logstash/logstash:6.3.0
+    image: docker.elastic.co/logstash/logstash:6.5.0
     volumes:
       - ./config/logstash/pipelines.yml:/usr/share/logstash/config/pipelines.yml
       - ./config/logstash/pipeline:/usr/share/logstash/pipeline
+      - ./config/logstash/templates:/usr/share/logstash/custom-templates
       - ./volumes/logstash/data1:/usr/share/logstash/data
     env_file:
       - ./config/logstash/logstash.env
     environment:
       node.name: logstash-1
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
     logging:
       driver: json-file
       options:
         max-size: "10m"
         max-file: "3"
-        labels: "logstash,elk"
 
   nginx:
     build:
@@ -76,4 +108,3 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-        labels: "nginx"
